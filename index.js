@@ -75,34 +75,6 @@ async function run() {
       });
     });
 
-    //==================================Portfolio Resume===============================
-    const allResume = db.collection("resumefile");
-    // crate skills data
-    app.post("/api/v1/resume", async (req, res) => {
-      const Supply = req.body;
-      const result = await allResume.insertOne(Supply);
-      res.send(result);
-      console.log(result, " project create  successfully");
-    });
-    // Get all skills
-    app.get("/api/v1/resume", async (req, res) => {
-      let query = {};
-      if (req.query.priority) {
-        query.priority = req.query.priority;
-      }
-      const cursor = allResume.find(query);
-      const supply = await cursor.toArray();
-      res.send({ status: true, data: supply });
-    });
-    // Delete Project
-    app.delete("/api/v1/resume/:id", async (req, res) => {
-      const id = req.params.id;
-      const result = await allResume.deleteOne({
-        _id: new ObjectId(id),
-      });
-      console.log(result);
-      res.send(result);
-    });
     //==================================Portfolio skills===============================
     const allskill = db.collection("skills");
     // crate skills data
@@ -133,7 +105,6 @@ async function run() {
     });
 
     //==================================Portfolio Project===============================
-
     const Projects = db.collection("allProject");
     // crate project data
     app.post("/api/v1/projects", async (req, res) => {
@@ -156,6 +127,34 @@ async function run() {
     app.delete("/api/v1/projects/:id", async (req, res) => {
       const id = req.params.id;
       const result = await Projects.deleteOne({
+        _id: new ObjectId(id),
+      });
+      console.log(result);
+      res.send(result);
+    });
+    //==================================Portfolio resume ===============================
+    const Resume = db.collection("resume");
+    // crate project data
+    app.post("/api/v1/resume", async (req, res) => {
+      const Supply = req.body;
+      const result = await Resume.insertOne(Supply);
+      res.send(result);
+      console.log(result, " project create  successfully");
+    });
+    // Get all project
+    app.get("/api/v1/resume", async (req, res) => {
+      let query = {};
+      if (req.query.priority) {
+        query.priority = req.query.priority;
+      }
+      const cursor = Resume.find(query);
+      const supply = await cursor.toArray();
+      res.send({ status: true, data: supply });
+    });
+    // Delete projects
+    app.delete("/api/v1/resume/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await Resume.deleteOne({
         _id: new ObjectId(id),
       });
       console.log(result);
