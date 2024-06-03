@@ -132,18 +132,6 @@ async function run() {
       console.log(result);
       res.send(result);
     });
-    //==================================Portfolio resume ===============================
-    const Resume = db.collection("resume");
-    app.get("/api/v1/resume", async (req, res) => {
-      let query = {};
-      if (req.query.priority) {
-        query.priority = req.query.priority;
-      }
-      const cursor = Resume.find(query);
-      const supply = await cursor.toArray();
-      res.send({ status: true, data: supply });
-    });
-
     // ==============================Portfolio Blog Post================================
     const AllBlogPost = db.collection("allBlogData");
     // crate data
