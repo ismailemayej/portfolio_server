@@ -74,16 +74,44 @@ async function run() {
         token,
       });
     });
+    //==================================Portfolio Resume===============================
+    const Resume = db.collection("resume");
+    // crate skills data
+    app.post("/api/v1/resume", async (req, res) => {
+      const Supply = req.body;
+      const result = await Resume.insertOne(Supply);
+      res.send(result);
+      console.log(result, " project create  successfully");
+    });
+    // Get all skills
+    app.get("/api/v1/resume", async (req, res) => {
+      let query = {};
+      if (req.query.priority) {
+        query.priority = req.query.priority;
+      }
+      const cursor = Resume.find(query);
+      const supply = await cursor.toArray();
+      res.send({ status: true, data: supply });
+    });
+    // Delete Project
+    app.delete("/api/v1/resume/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await Resume.deleteOne({
+        _id: new ObjectId(id),
+      });
+      console.log(result);
+      res.send(result);
+    });
     //==================================Portfolio skills===============================
     const allskill = db.collection("skills");
-    // crate project data
+    // crate skills data
     app.post("/api/v1/skills", async (req, res) => {
       const Supply = req.body;
       const result = await allskill.insertOne(Supply);
       res.send(result);
       console.log(result, " project create  successfully");
     });
-    // Get all project
+    // Get all skills
     app.get("/api/v1/skills", async (req, res) => {
       let query = {};
       if (req.query.priority) {
@@ -93,22 +121,16 @@ async function run() {
       const supply = await cursor.toArray();
       res.send({ status: true, data: supply });
     });
-    // Edit projects
-    app.put("/api/v1/skills/:id", async (req, res) => {
+    // Delete Project
+    app.delete("/api/v1/skills/:id", async (req, res) => {
       const id = req.params.id;
-      const supply = req.body;
-      const filter = { _id: new ObjectId(id) };
-      const updateDoc = {
-        $set: {
-          id: supply.id,
-          skillname: supply.skillname,
-          skilllogo: supply.skilllogo,
-        },
-      };
-      const options = { upsert: true };
-      const result = await allskill.updateOne(filter, updateDoc, options);
-      res.json(result);
+      const result = await allskill.deleteOne({
+        _id: new ObjectId(id),
+      });
+      console.log(result);
+      res.send(result);
     });
+
     //==================================Portfolio Project===============================
 
     const Projects = db.collection("allProject");
@@ -129,21 +151,14 @@ async function run() {
       const supply = await cursor.toArray();
       res.send({ status: true, data: supply });
     });
-    // Edit projects
-    app.put("/api/v1/projects/:id", async (req, res) => {
+    // Delete projects
+    app.delete("/api/v1/projects/:id", async (req, res) => {
       const id = req.params.id;
-      const supply = req.body;
-      const filter = { _id: new ObjectId(id) };
-      const updateDoc = {
-        $set: {
-          id: supply.id,
-          githublink: supply.githublink,
-          livelink: supply.livelink,
-        },
-      };
-      const options = { upsert: true };
-      const result = await Projects.updateOne(filter, updateDoc, options);
-      res.json(result);
+      const result = await Projects.deleteOne({
+        _id: new ObjectId(id),
+      });
+      console.log(result);
+      res.send(result);
     });
 
     // ==============================Portfolio Blog Post================================
