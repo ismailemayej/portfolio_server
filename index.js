@@ -74,8 +74,9 @@ async function run() {
         token,
       });
     });
+
     //==================================Portfolio Resume===============================
-    const allResume = db.collection("resume");
+    const allResume = db.collection("resumefile");
     // crate skills data
     app.post("/api/v1/resume", async (req, res) => {
       const Supply = req.body;
