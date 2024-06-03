@@ -14,9 +14,6 @@ app.use(express.json());
 
 // MongoDB Connection URL
 const uri = process.env.MONGODB_URI;
-if (!uri || !process.env.JWT_SECRET || !process.env.EXPIRES_IN) {
-  throw new Error("Missing required environment variables");
-}
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -30,234 +27,184 @@ async function run() {
 
     const db = client.db("portfolio");
     const collection = db.collection("users");
-
     // User Registration
     app.post("/api/v1/register", async (req, res) => {
-      try {
-        const { name, email, password } = req.body;
+      const { name, email, password } = req.body;
 
-        // Check if email already exists
-        const existingUser = await collection.findOne({ email });
-        if (existingUser) {
-          return res.status(400).json({
-            success: false,
-            message: "User already exists",
-          });
-        }
-
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Insert user into the database
-        await collection.insertOne({ name, email, password: hashedPassword });
-        res.status(201).json({
-          success: true,
-          message: "User registered successfully",
-        });
-      } catch (error) {
-        res.status(500).json({
+      // Check if email already exists
+      const existingUser = await collection.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({
           success: false,
-          message: "Internal server error",
+          message: "User already exists",
         });
       }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Insert user into the database
+      await collection.insertOne({ name, email, password: hashedPassword });
+      res.status(201).json({
+        success: true,
+        message: "User registered successfully",
+      });
     });
 
     // User Login
     app.post("/api/v1/login", async (req, res) => {
-      try {
-        const { email, password } = req.body;
-
-        // Find user by email
-        const user = await collection.findOne({ email });
-        if (!user) {
-          return res.status(401).json({ message: "Invalid email or password" });
-        }
-
-        // Compare hashed password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-          return res.status(401).json({ message: "Invalid email or password" });
-        }
-
-        // Generate JWT token
-        const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
-          expiresIn: process.env.EXPIRES_IN,
-        });
-
-        res.json({
-          success: true,
-          message: "Login successful",
-          token,
-        });
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
+      const { email, password } = req.body;
+      // Find user by email
+      const user = await collection.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ message: "Invalid email or password" });
       }
+      // Compare hashed password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid email or password" });
+      }
+      // Generate JWT token
+      const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, {
+        expiresIn: process.env.EXPIRES_IN,
+      });
+      res.json({
+        success: true,
+        message: "Login successful",
+        token,
+      });
     });
 
-    // Portfolio skills collection
+    //==================================Portfolio skills===============================
     const allskill = db.collection("skills");
-
-    // Create skills data
+    // crate skills data
     app.post("/api/v1/skills", async (req, res) => {
-      try {
-        const Supply = req.body;
-        const result = await allskill.insertOne(Supply);
-        res.send(result);
-        console.log(result, "project created successfully");
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
-      }
+      const Supply = req.body;
+      const result = await allskill.insertOne(Supply);
+      res.send(result);
+      console.log(result, " project create  successfully");
     });
-
     // Get all skills
     app.get("/api/v1/skills", async (req, res) => {
-      try {
-        let query = {};
-        if (req.query.priority) {
-          query.priority = req.query.priority;
-        }
-        const cursor = allskill.find(query);
-        const supply = await cursor.toArray();
-        res.send({ status: true, data: supply });
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
+      let query = {};
+      if (req.query.priority) {
+        query.priority = req.query.priority;
       }
+      const cursor = allskill.find(query);
+      const supply = await cursor.toArray();
+      res.send({ status: true, data: supply });
     });
-
-    // Delete skill
+    // Delete Project
     app.delete("/api/v1/skills/:id", async (req, res) => {
-      try {
-        const id = req.params.id;
-        const result = await allskill.deleteOne({
-          _id: new ObjectId(id),
-        });
-        console.log(result);
-        res.send(result);
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
-      }
+      const id = req.params.id;
+      const result = await allskill.deleteOne({
+        _id: new ObjectId(id),
+      });
+      console.log(result);
+      res.send(result);
     });
 
-    // Portfolio project collection
+    //==================================Portfolio Project===============================
     const Projects = db.collection("allProject");
-
-    // Create project data
+    // crate project data
     app.post("/api/v1/projects", async (req, res) => {
-      try {
-        const Supply = req.body;
-        const result = await Projects.insertOne(Supply);
-        res.send(result);
-        console.log(result, "project created successfully");
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
-      }
+      const Supply = req.body;
+      const result = await Projects.insertOne(Supply);
+      res.send(result);
+      console.log(result, " project create  successfully");
     });
-
-    // Get all projects
+    // Get all project
     app.get("/api/v1/projects", async (req, res) => {
-      try {
-        let query = {};
-        if (req.query.priority) {
-          query.priority = req.query.priority;
-        }
-        const cursor = Projects.find(query);
-        const supply = await cursor.toArray();
-        res.send({ status: true, data: supply });
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
+      let query = {};
+      if (req.query.priority) {
+        query.priority = req.query.priority;
       }
+      const cursor = Projects.find(query);
+      const supply = await cursor.toArray();
+      res.send({ status: true, data: supply });
     });
-
-    // Delete project
+    // Delete projects
     app.delete("/api/v1/projects/:id", async (req, res) => {
-      try {
-        const id = req.params.id;
-        const result = await Projects.deleteOne({
-          _id: new ObjectId(id),
-        });
-        console.log(result);
-        res.send(result);
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
-      }
+      const id = req.params.id;
+      const result = await Projects.deleteOne({
+        _id: new ObjectId(id),
+      });
+      console.log(result);
+      res.send(result);
     });
-
-    // Portfolio blog post collection
+    // ==============================Portfolio Blog Post================================
     const AllBlogPost = db.collection("allBlogData");
-
-    // Create blog post
+    // crate data
     app.post("/api/v1/blogs", async (req, res) => {
-      try {
-        const Supply = req.body;
-        const result = await AllBlogPost.insertOne(Supply);
-        res.send(result);
-        console.log(result, "blog post created successfully");
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
-      }
+      const Supply = req.body;
+      const result = await AllBlogPost.insertOne(Supply);
+      res.send(result);
+      console.log(result, "blog post  successfully");
     });
 
-    // Get all blog posts
+    //  Get All Supply Post
     app.get("/api/v1/blogs", async (req, res) => {
-      try {
-        let query = {};
-        if (req.query.priority) {
-          query.priority = req.query.priority;
-        }
-        const cursor = AllBlogPost.find(query);
-        const supply = await cursor.toArray();
-        res.send({ status: true, data: supply });
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
+      let query = {};
+      if (req.query.priority) {
+        query.priority = req.query.priority;
       }
+      const cursor = AllBlogPost.find(query);
+      const supply = await cursor.toArray();
+      res.send({ status: true, data: supply });
     });
-
-    // Get single blog post
+    // get single data
     app.get("/api/v1/blogs/:id", async (req, res) => {
-      try {
-        const id = req.params.id;
-        const result = await AllBlogPost.findOne({
-          _id: new ObjectId(id),
-        });
-        res.send(result);
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          message: "Internal server error",
-        });
-      }
+      const id = req.params.id;
+      const result = await AllBlogPost.findOne({
+        _id: new ObjectId(id),
+      });
+      res.send(result);
+    });
+    // Edit Supply data
+    app.put("/api/v1/blogs/:id", async (req, res) => {
+      const id = req.params.id;
+      const supply = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          id: supply.id,
+          title: supply.title,
+          image: supply.image,
+          category: supply.category,
+          blogs: supply.blogs,
+        },
+      };
+      const options = { upsert: true };
+      const result = await AllBlogPost.updateOne(filter, updateDoc, options);
+      res.json(result);
+    });
+    //  Delete Supply data
+    app.delete("/api/v1/blogs/:id", async (req, res) => {
+      const id = req.params.id;
+      const result = await AllBlogPost.deleteOne({
+        _id: new ObjectId(id),
+      });
+      console.log(result);
+      res.send(result);
     });
 
-    // Edit blog post
-    app.put("/api/v1/blogs/:id", async (req, res) => {
-      try {
-        const id = req.params.id;
-        const supply = req.body;
-        const filter = { _id: new ObjectId(id) 
+    // ==============================================================
+
+    // Start the server
+    app.listen(port, () => {
+      console.log(`portfolio Server is running on http://localhost:${port}`);
+    });
+  } finally {
+  }
+}
+
+run().catch(console.dir);
+
+// Test route
+app.get("/", (req, res) => {
+  const serverStatus = {
+    message: "Portfolio server is Running",
+    timestamp: new Date(),
+  };
+  res.json(serverStatus);
+});
