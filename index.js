@@ -134,14 +134,6 @@ async function run() {
     });
     //==================================Portfolio resume ===============================
     const Resume = db.collection("resume");
-    // crate project data
-    app.post("/api/v1/resume", async (req, res) => {
-      const Supply = req.body;
-      const result = await Resume.insertOne(Supply);
-      res.send(result);
-      console.log(result, " project create  successfully");
-    });
-    // Get all project
     app.get("/api/v1/resume", async (req, res) => {
       let query = {};
       if (req.query.priority) {
@@ -150,15 +142,6 @@ async function run() {
       const cursor = Resume.find(query);
       const supply = await cursor.toArray();
       res.send({ status: true, data: supply });
-    });
-    // Delete projects
-    app.delete("/api/v1/resume/:id", async (req, res) => {
-      const id = req.params.id;
-      const result = await Resume.deleteOne({
-        _id: new ObjectId(id),
-      });
-      console.log(result);
-      res.send(result);
     });
 
     // ==============================Portfolio Blog Post================================
