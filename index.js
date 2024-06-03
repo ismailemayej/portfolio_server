@@ -75,11 +75,11 @@ async function run() {
       });
     });
     //==================================Portfolio Resume===============================
-    const Resume = db.collection("resume");
+    const allResume = db.collection("resume");
     // crate skills data
     app.post("/api/v1/resume", async (req, res) => {
       const Supply = req.body;
-      const result = await Resume.insertOne(Supply);
+      const result = await allResume.insertOne(Supply);
       res.send(result);
       console.log(result, " project create  successfully");
     });
@@ -89,14 +89,14 @@ async function run() {
       if (req.query.priority) {
         query.priority = req.query.priority;
       }
-      const cursor = Resume.find(query);
+      const cursor = allResume.find(query);
       const supply = await cursor.toArray();
       res.send({ status: true, data: supply });
     });
     // Delete Project
     app.delete("/api/v1/resume/:id", async (req, res) => {
       const id = req.params.id;
-      const result = await Resume.deleteOne({
+      const result = await allResume.deleteOne({
         _id: new ObjectId(id),
       });
       console.log(result);
