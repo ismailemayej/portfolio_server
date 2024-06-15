@@ -4,7 +4,6 @@ const bcrypt = require("bcrypt");
 const { MongoClient, ObjectId } = require("mongodb");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -94,6 +93,23 @@ async function run() {
       const supply = await cursor.toArray();
       res.send({ status: true, data: supply });
     });
+    // skills update
+    app.put("/api/v1/skills/:id", async (req, res) => {
+      const id = req.params.id;
+      const supply = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          id: supply.id,
+          skilllogo: supply.skilllogo,
+          skillname: supply.skillname,
+          skillpercentage: supply.skillpercentage,
+        },
+      };
+      const options = { upsert: true };
+      const result = await allskill.updateOne(filter, updateDoc, options);
+      res.json(result);
+    });
     // Delete Project
     app.delete("/api/v1/skills/:id", async (req, res) => {
       const id = req.params.id;
@@ -122,6 +138,23 @@ async function run() {
       const cursor = Projects.find(query);
       const supply = await cursor.toArray();
       res.send({ status: true, data: supply });
+    });
+    // project update
+    app.put("/api/v1/projects/:id", async (req, res) => {
+      const id = req.params.id;
+      const supply = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          id: supply.id,
+          image: supply.image,
+          livelink: supply.livelink,
+          githublink: supply.githublink,
+        },
+      };
+      const options = { upsert: true };
+      const result = await Projects.updateOne(filter, updateDoc, options);
+      res.json(result);
     });
     // Delete projects
     app.delete("/api/v1/projects/:id", async (req, res) => {
@@ -186,6 +219,17 @@ async function run() {
       });
       console.log(result);
       res.send(result);
+    });
+    //  Get Resume
+    const Resume = db.collection("resume");
+    app.get("/api/v1/resume", async (req, res) => {
+      let query = {};
+      if (req.query.priority) {
+        query.priority = req.query.priority;
+      }
+      const cursor = Resume.find(query);
+      const supply = await cursor.toArray();
+      res.send({ status: true, data: supply });
     });
 
     // ==============================================================
