@@ -101,6 +101,7 @@ async function run() {
       const updateDoc = {
         $set: {
           id: supply.id,
+
           skilllogo: supply.skilllogo,
           skillname: supply.skillname,
           skillpercentage: supply.skillpercentage,
@@ -147,6 +148,7 @@ async function run() {
       const updateDoc = {
         $set: {
           id: supply.id,
+          overview: supply.overview,
           image: supply.image,
           livelink: supply.livelink,
           githublink: supply.githublink,
